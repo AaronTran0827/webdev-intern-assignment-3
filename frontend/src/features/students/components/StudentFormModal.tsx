@@ -116,23 +116,23 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-xs">
+      <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">
-            {isEdit ? `Chỉnh Sửa Thí Sinh SBD: ${sbd}` : 'Thêm Thí Sinh Mới'}
+        <div className="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+            {isEdit ? `Chỉnh Sửa SBD: ${sbd}` : 'Thêm Thí Sinh Mới'}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5">
           {errorMsg && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
@@ -141,7 +141,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
           )}
 
           {/* SBD & Stream Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Số Báo Danh (SBD) *</label>
               <input
@@ -176,7 +176,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
           {!isEdit && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Chọn Nhóm Môn Thi *</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setStream('NATURAL')}
@@ -206,7 +206,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
           {/* Mandatory Subjects */}
           <div>
             <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Các Môn Bắt Buộc</h4>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
               <div>
                 <label className="block text-[11px] text-slate-600 mb-1">Toán</label>
                 <input
@@ -252,7 +252,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
               Các Môn {stream === 'NATURAL' ? 'Tự Nhiên' : 'Xã Hội'}
             </h4>
             {stream === 'NATURAL' ? (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">Vật Lý</label>
                   <input
@@ -291,7 +291,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">Lịch Sử</label>
                   <input
