@@ -1,121 +1,166 @@
-# 🎓 G-Scores 2024 - Backend REST API System
+# 🎓 G-Scores 2024 - Hệ Thống Quản Lý & Phân Tích Phổ Điểm Thi THPT 2024
 
-Hệ thống Backend API Tra cứu và Phân tích phổ điểm thi THPT 2024 từ dữ liệu hơn 1,06 triệu thí sinh. Được xây dựng với **Node.js, Express, TypeScript**, áp dụng chặt chẽ **Lập trình hướng đối tượng (OOP)**, **Repository Pattern**, và **Zod Form Validation**.
-
----
-
-## 🚀 Tính năng chính (Features)
-
-1. **Nạp dữ liệu lớn (Big Data Seeding)**:
-   - Đọc và xử lý tập dữ liệu `diem_thi_thpt_2024.csv` (hơn **1.061.605 dòng**).
-   - Tối ưu hóa lưu trữ với SQLite Transaction & Pre-computed Indexing, thời gian seed chỉ mất **~8 giây**.
-
-2. **Tra cứu điểm thi theo Số báo danh (SBD)**:
-   - Endpoint: `GET /api/scores/:sbd`
-   - Trả về chi tiết điểm 9 môn thi, đánh giá 4 mức học lực, cùng tổng điểm các khối thi đại học (Khối A, A1, B, C, D).
-
-3. **Báo cáo phân loại phổ điểm 4 mức (Score Distribution Report)**:
-   - Endpoint: `GET /api/reports/score-levels`
-   - Thống kê chi tiết theo từng môn học dựa trên 4 mức bắt buộc:
-     - **Level 1 (Giỏi)**: `Score >= 8.0`
-     - **Level 2 (Khá)**: `6.0 <= Score < 8.0`
-     - **Level 3 (Trung bình)**: `4.0 <= Score < 6.0`
-     - **Level 4 (Yếu)**: `Score < 4.0`
-
-4. **Danh sách Top 10 thí sinh Khối A (Toán, Lý, Hóa)**:
-   - Endpoint: `GET /api/reports/top10-group-a`
-   - Xếp hạng 10 thí sinh có tổng điểm 3 môn Toán, Vật lý, Hóa học cao nhất Việt Nam năm 2024.
-
-5. **Thống kê tổng quan hệ thống (Dashboard Summary)**:
-   - Endpoint: `GET /api/reports/dashboard`
-   - Cung cấp tổng số thí sinh, số lượt thi, điểm trung bình toàn quốc và thủ khoa Khối A.
+Hệ thống Full-stack (React Frontend + Node.js Express REST API Backend) Tra cứu, Quản lý và Phân tích phổ điểm thi THPT 2024 từ dữ liệu hơn **1,06 triệu thí sinh**. Được thiết kế và xây dựng theo chuẩn kiến trúc **Domain-Driven Design (DDD)**, **Lập trình hướng đối tượng (OOP)**, **Repository Pattern**, và **Zod Form Validation**.
 
 ---
 
-## 🏛️ Kiến trúc OOP & Design Patterns
+## 🏗️ Công Nghệ Sử Dụng (Tech Stack)
 
-Hệ thống tuân thủ nghiêm ngặt các nguyên lý **SOLID** và lập trình hướng đối tượng **OOP**:
+### **Backend (`/backend`)**
+- **Core**: Node.js, Express framework, TypeScript.
+- **Database & ORM**: PostgreSQL (Supabase cloud / Local Postgres), Prisma ORM.
+- **Architecture**: Domain-Driven Design (DDD), Repository Pattern, Factory Pattern, Polymorphism.
+- **Validation & Security**: Zod Schemas, Rate Limiting (`express-rate-limit`), Helmet security headers.
+- **Testing**: Jest (`ts-jest`).
 
-```
-backend/src/
-├── config/             # Cấu hình môi trường & DB connection
-├── domain/             # Lớp Domain Model (OOP Entities & Abstractions)
-│   └── entities/
-│       ├── Subject.ts  # Abstract BaseSubject, MathSubject, SubjectFactory...
-│       └── StudentScore.ts # Entity chứa logic tính điểm khối A, B, C, D...
-├── dtos/               # Data Transfer Objects & Zod Validation Schemas
-├── repositories/       # Repository Pattern (IScoreRepository, SqliteScoreRepository)
-├── services/           # Service Layer chứa Business Logic
-├── controllers/        # Express Controllers xử lý HTTP Requests
-└── routes/             # Định tuyến API (Express Routers)
+### **Frontend (`/frontend`)**
+- **Core**: React 18, TypeScript, Vite.
+- **Styling**: Tailwind CSS, Lucide React Icons.
+- **Routing & HTTP Client**: React Router DOM v7, Axios.
+- **Charts & Visualization**: Chart.js, React-Chartjs-2.
+
+---
+
+## 📁 Cấu Trúc Thư Mục Dự Án (Project Structure)
+
+```text
+webdev-intern-assignment-3/
+├── backend/                     # Node.js Express REST API Backend
+│   ├── prisma/                  # Prisma Schema & Database Seeder
+│   ├── src/
+│   │   ├── modules/student/     # Student Module (Domain, Application, Infrastructure, Presentation)
+│   │   ├── shared/              # Middlewares, Error Handlers, Core Utilities
+│   │   ├── app.ts               # Express App Config
+│   │   └── server.ts            # Server Entry Point
+│   ├── tests/                   # Unit Tests & Manual Postman Excel Generator
+│   ├── package.json
+│   └── tsconfig.json
+│
+└── frontend/                    # React Vite Frontend SPA
+    ├── src/
+    │   ├── components/          # Reusable UI Components (Navbar, Layout, Badge, etc.)
+        ├── features/students/   # Student Features (Dashboard, Student Table, Reports, Forms)
+    │   ├── lib/                 # Axios Client Instance (`apiClient.ts`)
+    │   ├── App.tsx              # Main React App & Router Config
+    │   └── main.tsx             # React DOM Entry
+    ├── package.json
+    └── vite.config.ts
 ```
 
-### Điểm nổi bật OOP:
-- **Polymorphism & Inheritance**: `BaseSubject` định nghĩa giao ước chung, các lớp cụ thể (`MathSubject`, `LiteratureSubject`, `PhysicsSubject`, ...) kế thừa và triển khai phương thức `getPerformanceLevel()`.
-- **Factory Pattern**: `SubjectFactory` khởi tạo và quản lý tập hợp môn học động.
-- **Encapsulation**: Đóng gói công thức tính điểm khối A/A1/B/C/D trong class `StudentScore`.
-- **Dependency Inversion (DIP)**: `ScoreService` phụ thuộc vào interface `IScoreRepository`, dễ dàng thay đổi giữa SQLite, PostgreSQL hoặc Supabase.
+## 🚀 Hướng Dẫn Khởi Chạy Local Từng Bước (Quick Start Guide)
+
+### **Bước 1: Clone Repository về máy**
+
+Mở Terminal (Command Prompt / PowerShell / Bash) và chạy lệnh:
+
+```bash
+git clone <URL_REPOSITORY_CUA_BAN>
+cd webdev-intern-assignment-3
+```
 
 ---
 
-## 🛠️ Hướng dẫn Chạy ứng dụng (Quick Start)
+### **Bước 2: Cấu hình và khởi chạy Backend (`/backend`)**
 
-### Yêu cầu hệ thống:
-- **Node.js**: >= 18.0.0
-- **npm**: >= 9.0.0
+1. **Di chuyển vào thư mục backend và cài đặt thư viện**:
+   ```bash
+   cd backend
+   npm install
+   ```
 
-### Bước 1: Cài đặt phụ thuộc (Install Dependencies)
+2. **Tạo file cấu hình môi trường `.env`**:
+   Tạo file `.env` tại thư mục `backend/` sau đó paste file env_backend.txt em có gửi đính kèm ở mail
+
+3. **Đồng bộ Schema Database với Prisma**:
+   ```bash
+   # Sinh TypeScript types từ Prisma Schema
+   npm run prisma:generate
+
+   # Đồng bộ cấu trúc bảng vào Database
+   npm run prisma:push
+   ```
+
+4. **Nạp dữ liệu ban đầu (Database Seeding - Không khuyến khích khi vẫn sử dụng db của em sử dụng vì dữ liệu đã được em import sẵn)**:
+   Nếu cần nạp dữ liệu hơn 1 triệu thí sinh từ file CSV vào Database:
+   ```bash
+   npm run prisma:seed
+   ```
+
+5. **Khởi chạy Backend Server ở chế độ Development**:
+   ```bash
+   npm run dev
+   ```
+   - Server Backend sẽ chạy tại: **`http://localhost:5000`**
+   - Kiểm tra trạng thái Server (Health Check): **`http://localhost:5000/health`**
+
+---
+
+### **Bước 3: Cấu hình và khởi chạy Frontend (`/frontend`)**
+
+1. **Mở một cửa sổ Terminal mới** và di chuyển tới thư mục `frontend`:
+   ```bash
+   cd webdev-intern-assignment-3/frontend
+   npm install
+   ```
+
+2. **Tạo file cấu hình môi trường `.env`**:
+   Tạo file `.env` tại thư mục `frontend/`  sau đó paste file env_frontend.txt em có gửi đính kèm ở mail
+
+3. **Khởi chạy Frontend Dev Server**:
+   ```bash
+   npm run dev
+   ```
+   - Ứng dụng Web Frontend sẽ sẵn sàng tại: **`http://localhost:5173`**
+
+---
+
+## 🧪 Chạy Kiểm Thử Tự Động (Automated Testing)
+
+### **Chạy Unit Tests cho Backend**:
+Tại thư mục `backend/`:
 ```bash
 cd backend
-npm install
+npm test
 ```
-
-### Bước 2: Nạp dữ liệu vào Database (Data Seeding)
-Chạy lệnh seeder để chuyển dữ liệu từ file CSV vào Database:
-```bash
-npm run seed
-```
-> ⏱️ Thời gian thực thi: ~8 giây cho 1,06 triệu dòng dữ liệu.
-
-### Bước 3: Khởi chạy Backend Server
-Chạy ở chế độ Development (Hot reload):
-```bash
-npm run dev
-```
-Hoặc Build và chạy Production:
-```bash
-npm run build
-npm start
-```
-
-Server sẽ khởi chạy tại: `http://localhost:5000`
+*Hệ thống sẽ thực thi toàn bộ 17 unit test kiểm tra Domain Models, Calculation Services, và Group Detection.*
 
 ---
 
-## 🧪 Lệnh Kiểm thử (Run Automated Tests)
+## 📑 Danh Sách API Endpoints Chính
 
-Để tự động kiểm thử toàn bộ 7 API endpoints và tính đúng đắn của logic:
-```bash
-npx tsx src/test_backend.ts
-```
-
----
-
-## 📑 Chi tiết danh sách API Endpoints
-
-| Lệnh | Endpoint | Mô tả | Mẫu Request / Query |
+| Method | Endpoint | Mô Tả | Tham Số (Query / Body) |
 |---|---|---|---|
-| `GET` | `/health` | Kiểm tra trạng thái hoạt động server | `http://localhost:5000/health` |
-| `GET` | `/api/scores/:sbd` | Tra cứu điểm theo Số báo danh | `http://localhost:5000/api/scores/01000001` |
-| `GET` | `/api/reports/top10-group-a` | Danh sách Top 10 Khối A (Toán, Lý, Hóa) | `http://localhost:5000/api/reports/top10-group-a` |
-| `GET` | `/api/reports/score-levels` | Phổ điểm 4 mức (>=8, 6-8, 4-6, <4) theo môn | `http://localhost:5000/api/reports/score-levels` |
-| `GET` | `/api/reports/dashboard` | Thống kê tổng quan hệ thống | `http://localhost:5000/api/reports/dashboard` |
+| `GET` | `/health` | Kiểm tra trạng thái máy chủ | N/A |
+| `GET` | `/api/students` | Lấy danh sách thí sinh phân trang | `page`, `limit`, `group`, `sortBy`, `sortOrder` |
+| `GET` | `/api/students/:sbd` | Tra cứu chi tiết thí sinh theo SBD | `sbd` (URL parameter) |
+| `GET` | `/api/students/group/natural` | Lấy danh sách thí sinh Khối Tự Nhiên | N/A |
+| `GET` | `/api/students/group/social` | Lấy danh sách thí sinh Khối Xã Hội | N/A |
+| `POST` | `/api/students` | Thêm mới 01 thí sinh | JSON Body (SBD, điểm các môn) |
+| `PUT` | `/api/students/:sbd` | Cập nhật thông tin điểm thí sinh | JSON Body |
+| `DELETE` | `/api/students/:sbd` | Xóa thí sinh khỏi hệ thống | `sbd` (URL parameter) |
+| `GET` | `/api/reports/subjects` | Báo cáo phổ điểm 4 mức (Giỏi, Khá, TB, Yếu) | `subject` (mã môn tùy chọn) |
+| `GET` | `/api/reports/top10` | Danh sách Top 10 thí sinh cao điểm nhất | `block` (`A00`, `A01`, `B00`, `C00`, `D01`) |
 
 ---
 
-## 🐳 Triển khai với Docker (Docker Deployment)
+## 🛠️ Biên Dịch Cho Môi Trường Production (Production Build)
 
-Có thể khởi chạy nhanh backend qua Docker Compose:
-```bash
-docker-compose up --build -d
-```
+Khi cần đóng gói ứng dụng để triển khai:
+
+1. **Build Backend**:
+   ```bash
+   cd backend
+   npm run build
+   npm start
+   ```
+
+2. **Build Frontend**:
+   ```bash
+   cd frontend
+   npm run build
+   npm run preview
+   ```
+
+---
+
+✨ **Chúc anh/chị có một trải nghiệm kiểm thử và đánh giá website thật vui vẻ và thuận lợi!** ✨
