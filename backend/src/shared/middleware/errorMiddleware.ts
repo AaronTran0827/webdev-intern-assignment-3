@@ -24,13 +24,12 @@ export const errorMiddleware = (
 
   console.error('Unhandled Application Exception:', err);
 
-  const isProd = process.env.NODE_ENV === 'production';
-
   res.status(500).json({
     success: false,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: isProd ? 'Lỗi máy chủ nội bộ.' : err.message || 'Đã xảy ra lỗi không xác định trên hệ thống.',
+      message: err.message || 'Lỗi máy chủ nội bộ.',
+      details: err.stack,
     },
   });
 };
