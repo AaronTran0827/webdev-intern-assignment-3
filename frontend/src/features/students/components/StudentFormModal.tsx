@@ -211,7 +211,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 <label className="block text-[11px] text-slate-600 mb-1">Toán</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.05"
                   min="0"
                   max="10"
                   value={toan}
@@ -223,7 +223,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 <label className="block text-[11px] text-slate-600 mb-1">Ngữ Văn</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.05"
                   min="0"
                   max="10"
                   value={nguVan}
@@ -235,7 +235,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 <label className="block text-[11px] text-slate-600 mb-1">Ngoại Ngữ</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.05"
                   min="0"
                   max="10"
                   value={ngoaiNgu}
@@ -257,7 +257,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">Vật Lý</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={vatLi}
@@ -269,7 +269,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">Hóa Học</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={hoaHoc}
@@ -281,7 +281,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">Sinh Học</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={sinhHoc}
@@ -296,7 +296,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">Lịch Sử</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={lichSu}
@@ -308,7 +308,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">Địa Lý</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={diaLi}
@@ -320,7 +320,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   <label className="block text-[11px] text-slate-600 mb-1">GDCD</label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.05"
                     min="0"
                     max="10"
                     value={gdcd}

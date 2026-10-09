@@ -2,8 +2,14 @@ import { z } from 'zod';
 import { StudentGroup } from '../../domain/enums/StudentGroup.js';
 
 const scoreSchema = z
-  .union([z.number(), z.null(), z.undefined()])
-  .transform((val) => (val === null || val === undefined ? 0.0 : val))
+  .union([z.number(), z.string(), z.null(), z.undefined()])
+  .transform((val) => {
+    if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '')) {
+      return 0.0;
+    }
+    const num = typeof val === 'string' ? Number(val) : val;
+    return isNaN(num) ? val : Math.round(num * 100) / 100;
+  })
   .pipe(
     z
       .number({ invalid_type_error: 'Điểm số phải là một chữ số' })
