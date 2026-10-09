@@ -10,9 +10,21 @@ import { errorMiddleware } from './shared/middleware/errorMiddleware.js';
 export const createApp = (): Express => {
   const app = express();
 
-  // Security Middlewares
+  // Security Middlewares & Environment-Based CORS
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const corsOrigin = isDevelopment
+    ? ['http://localhost:3000', 'http://127.0.0.1:3000']
+    : process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : true;
+
   app.use(helmet());
-  app.use(cors());
+  app.use(
+    cors({
+      origin: corsOrigin,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+  );
   app.use(express.json());
 
   // Rate Limiting

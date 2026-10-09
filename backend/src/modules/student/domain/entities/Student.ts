@@ -4,9 +4,9 @@ import { Subject } from '../subjects/Subject.js';
 
 export interface BaseStudentProps {
   sbd: string;
-  toan: Score | number | null;
-  nguVan: Score | number | null;
-  ngoaiNgu: Score | number | null;
+  toan?: Score | number | null;
+  nguVan?: Score | number | null;
+  ngoaiNgu?: Score | number | null;
   maNgoaiNgu?: string | null;
 }
 
@@ -34,19 +34,15 @@ export abstract class Student {
    */
   public abstract getGroup(): StudentGroup;
   public abstract getGroupSubjects(): Subject[];
-  public abstract calculateAverageScore(): number | null;
+  public abstract calculateAverageScore(): number;
   public abstract toDTO(): Record<string, any>;
 
   /**
-   * Protected helper to calculate exact rounded average of valid numeric scores
+   * Protected helper to calculate exact rounded average of scores
    */
-  protected calculateAverage(scores: (Score | null | undefined)[]): number | null {
-    const validScores = scores
-      .map((s) => s?.getValue())
-      .filter((val): val is number => val !== null && val !== undefined);
-
-    if (validScores.length === 0) return null;
-    const sum = validScores.reduce((acc, curr) => acc + curr, 0);
-    return Math.round((sum / validScores.length) * 100) / 100;
+  protected calculateAverage(scores: Score[]): number {
+    if (scores.length === 0) return 0.0;
+    const sum = scores.reduce((acc, curr) => acc + curr.getValue(), 0);
+    return Math.round((sum / scores.length) * 100) / 100;
   }
 }

@@ -3,18 +3,15 @@ import { Score } from '../value-objects/Score.js';
 import { StudentGroup } from '../enums/StudentGroup.js';
 import {
   Subject,
-  MathSubject,
-  LiteratureSubject,
-  ForeignLanguageSubject,
   PhysicsSubject,
   ChemistrySubject,
   BiologySubject,
 } from '../subjects/Subject.js';
 
 export interface NaturalStudentProps extends BaseStudentProps {
-  vatLi: Score | number | null;
-  hoaHoc: Score | number | null;
-  sinhHoc: Score | number | null;
+  vatLi?: Score | number | null;
+  hoaHoc?: Score | number | null;
+  sinhHoc?: Score | number | null;
 }
 
 /**
@@ -44,28 +41,25 @@ export class NaturalStudent extends Student {
   /**
    * Calculates Khối A Total Score (Toán, Lý, Hóa)
    */
-  public getGroupAScore(): number | null {
-    if (this.toan.isNull() || this.vatLi.isNull() || this.hoaHoc.isNull()) return null;
-    return Math.round((this.toan.getValue()! + this.vatLi.getValue()! + this.hoaHoc.getValue()!) * 100) / 100;
+  public getGroupAScore(): number {
+    return Math.round((this.toan.getValue() + this.vatLi.getValue() + this.hoaHoc.getValue()) * 100) / 100;
   }
 
   /**
    * Calculates Khối B Total Score (Toán, Hóa, Sinh)
    */
-  public getGroupBScore(): number | null {
-    if (this.toan.isNull() || this.hoaHoc.isNull() || this.sinhHoc.isNull()) return null;
-    return Math.round((this.toan.getValue()! + this.hoaHoc.getValue()! + this.sinhHoc.getValue()!) * 100) / 100;
+  public getGroupBScore(): number {
+    return Math.round((this.toan.getValue() + this.hoaHoc.getValue() + this.sinhHoc.getValue()) * 100) / 100;
   }
 
   /**
    * Calculates Khối A1 Total Score (Toán, Lý, Anh)
    */
-  public getGroupA1Score(): number | null {
-    if (this.toan.isNull() || this.vatLi.isNull() || this.ngoaiNgu.isNull()) return null;
-    return Math.round((this.toan.getValue()! + this.vatLi.getValue()! + this.ngoaiNgu.getValue()!) * 100) / 100;
+  public getGroupA1Score(): number {
+    return Math.round((this.toan.getValue() + this.vatLi.getValue() + this.ngoaiNgu.getValue()) * 100) / 100;
   }
 
-  public override calculateAverageScore(): number | null {
+  public override calculateAverageScore(): number {
     return this.calculateAverage([
       this.toan,
       this.nguVan,

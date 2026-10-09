@@ -33,32 +33,28 @@ export class StudentFactory {
       gdcd: raw.gdcd,
     });
 
-    if (group === StudentGroup.NATURAL) {
-      return new NaturalStudent({
-        sbd: raw.sbd,
-        toan: raw.toan ?? null,
-        nguVan: raw.ngu_van ?? null,
-        ngoaiNgu: raw.ngoai_ngu ?? null,
-        maNgoaiNgu: raw.ma_ngoai_ngu ?? null,
-        vatLi: raw.vat_li ?? null,
-        hoaHoc: raw.hoa_hoc ?? null,
-        sinhHoc: raw.sinh_hoc ?? null,
-      });
-    }
-
     if (group === StudentGroup.SOCIAL) {
       return new SocialStudent({
         sbd: raw.sbd,
-        toan: raw.toan ?? null,
-        nguVan: raw.ngu_van ?? null,
-        ngoaiNgu: raw.ngoai_ngu ?? null,
+        toan: raw.toan ?? 0.0,
+        nguVan: raw.ngu_van ?? 0.0,
+        ngoaiNgu: raw.ngoai_ngu ?? 0.0,
         maNgoaiNgu: raw.ma_ngoai_ngu ?? null,
-        lichSu: raw.lich_su ?? null,
-        diaLi: raw.dia_li ?? null,
-        gdcd: raw.gdcd ?? null,
+        lichSu: raw.lich_su ?? 0.0,
+        diaLi: raw.dia_li ?? 0.0,
+        gdcd: raw.gdcd ?? 0.0,
       });
     }
 
-    throw new Error(`Unsupported student group for sbd: ${raw.sbd}`);
+    return new NaturalStudent({
+      sbd: raw.sbd,
+      toan: raw.toan ?? 0.0,
+      nguVan: raw.ngu_van ?? 0.0,
+      ngoaiNgu: raw.ngoai_ngu ?? 0.0,
+      maNgoaiNgu: raw.ma_ngoai_ngu ?? null,
+      vatLi: raw.vat_li ?? 0.0,
+      hoaHoc: raw.hoa_hoc ?? 0.0,
+      sinhHoc: raw.sinh_hoc ?? 0.0,
+    });
   }
 }

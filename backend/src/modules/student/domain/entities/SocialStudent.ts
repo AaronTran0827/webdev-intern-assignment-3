@@ -9,9 +9,9 @@ import {
 } from '../subjects/Subject.js';
 
 export interface SocialStudentProps extends BaseStudentProps {
-  lichSu: Score | number | null;
-  diaLi: Score | number | null;
-  gdcd: Score | number | null;
+  lichSu?: Score | number | null;
+  diaLi?: Score | number | null;
+  gdcd?: Score | number | null;
 }
 
 /**
@@ -41,20 +41,18 @@ export class SocialStudent extends Student {
   /**
    * Calculates Khối C Total Score (Văn, Sử, Địa)
    */
-  public getGroupCScore(): number | null {
-    if (this.nguVan.isNull() || this.lichSu.isNull() || this.diaLi.isNull()) return null;
-    return Math.round((this.nguVan.getValue()! + this.lichSu.getValue()! + this.diaLi.getValue()!) * 100) / 100;
+  public getGroupCScore(): number {
+    return Math.round((this.nguVan.getValue() + this.lichSu.getValue() + this.diaLi.getValue()) * 100) / 100;
   }
 
   /**
    * Calculates Khối D Total Score (Toán, Văn, Anh)
    */
-  public getGroupDScore(): number | null {
-    if (this.toan.isNull() || this.nguVan.isNull() || this.ngoaiNgu.isNull()) return null;
-    return Math.round((this.toan.getValue()! + this.nguVan.getValue()! + this.ngoaiNgu.getValue()!) * 100) / 100;
+  public getGroupDScore(): number {
+    return Math.round((this.toan.getValue() + this.nguVan.getValue() + this.ngoaiNgu.getValue()) * 100) / 100;
   }
 
-  public override calculateAverageScore(): number | null {
+  public override calculateAverageScore(): number {
     return this.calculateAverage([
       this.toan,
       this.nguVan,

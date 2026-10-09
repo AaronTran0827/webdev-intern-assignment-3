@@ -2,11 +2,14 @@ import { z } from 'zod';
 import { StudentGroup } from '../../domain/enums/StudentGroup.js';
 
 const scoreSchema = z
-  .number({ invalid_type_error: 'Score must be a number' })
-  .min(0.0, { message: 'Score cannot be less than 0.0' })
-  .max(10.0, { message: 'Score cannot be greater than 10.0' })
-  .nullable()
-  .optional();
+  .union([z.number(), z.null(), z.undefined()])
+  .transform((val) => (val === null || val === undefined ? 0.0 : val))
+  .pipe(
+    z
+      .number({ invalid_type_error: 'Score must be a number' })
+      .min(0.0, { message: 'Score cannot be less than 0.0' })
+      .max(10.0, { message: 'Score cannot be greater than 10.0' })
+  );
 
 const maNgoaiNguSchema = z
   .string()
@@ -58,4 +61,3 @@ export const UpdateStudentSchema = z.object({
   gdcd: scoreSchema,
   maNgoaiNgu: maNgoaiNguSchema,
 });
-
