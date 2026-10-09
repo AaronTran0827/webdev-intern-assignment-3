@@ -5,9 +5,12 @@ import { GetStudentsByGroup } from '../../application/use-cases/GetStudentsByGro
 import { CreateStudent } from '../../application/use-cases/CreateStudent.js';
 import { UpdateStudent } from '../../application/use-cases/UpdateStudent.js';
 import { DeleteStudent } from '../../application/use-cases/DeleteStudent.js';
+import { GetSubjectReport } from '../../application/use-cases/GetSubjectReport.js';
+import { GetTop10Students } from '../../application/use-cases/GetTop10Students.js';
 import { StudentGroup } from '../../domain/enums/StudentGroup.js';
 import {
   SbdParamSchema,
+  StudentQuerySchema,
   CreateStudentSchema,
   UpdateStudentSchema,
 } from '../validators/studentSchemas.js';
@@ -20,16 +23,22 @@ export class StudentController {
     private readonly getStudentsByGroupUseCase: GetStudentsByGroup,
     private readonly createStudentUseCase: CreateStudent,
     private readonly updateStudentUseCase: UpdateStudent,
-    private readonly deleteStudentUseCase: DeleteStudent
+    private readonly deleteStudentUseCase: DeleteStudent,
+    private readonly getSubjectReportUseCase: GetSubjectReport,
+    private readonly getTop10StudentsUseCase: GetTop10Students
   ) {}
 
-  public getAll = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.getAllStudentsUseCase.execute();
+      const queryParsed = StudentQuerySchema.safeParse(req.query);
+      if (!queryParsed.success) {
+        throw new ValidationError(queryParsed.error.errors[0].message);
+      }
+
+      const result = await this.getAllStudentsUseCase.execute(queryParsed.data);
       res.status(200).json({
         success: true,
-        count: data.length,
-        data,
+        ...result,
       });
     } catch (error) {
       next(error);
@@ -133,6 +142,34 @@ export class StudentController {
       res.status(200).json({
         success: true,
         message: `Student with SBD ${parsed.data.sbd} deleted successfully.`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getReports = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const subjectCode = req.query.subject as string | undefined;
+      const reports = await this.getSubjectReportUseCase.execute(subjectCode);
+      res.status(200).json({
+        success: true,
+        data: reports,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getTop10 = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const blockCode = (req.query.block as string) || 'A00';
+      const data = await this.getTop10StudentsUseCase.execute(blockCode);
+      res.status(200).json({
+        success: true,
+        block: blockCode.toUpperCase(),
+        count: data.length,
+        data,
       });
     } catch (error) {
       next(error);

@@ -1,10 +1,14 @@
-import { IStudentRepository } from '../../domain/repositories/IStudentRepository.js';
+import { IStudentRepository, StudentQueryOptions } from '../../domain/repositories/IStudentRepository.js';
 
 export class GetAllStudents {
   constructor(private readonly studentRepository: IStudentRepository) {}
 
-  public async execute() {
-    const students = await this.studentRepository.findAll();
-    return students.map((s) => s.toDTO());
+  public async execute(options: StudentQueryOptions = {}) {
+    const result = await this.studentRepository.findAll(options);
+    return {
+      ...result,
+      data: result.data.map((s) => s.toDTO()),
+    };
   }
 }
+

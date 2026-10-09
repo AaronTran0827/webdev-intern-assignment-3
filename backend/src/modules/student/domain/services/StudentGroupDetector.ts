@@ -23,29 +23,21 @@ export class StudentGroupDetector {
       return true;
     };
 
-    const isNatural =
-      hasValue(scores.vatLi) &&
-      hasValue(scores.hoaHoc) &&
-      hasValue(scores.sinhHoc);
+    const naturalCount =
+      (hasValue(scores.vatLi) ? 1 : 0) +
+      (hasValue(scores.hoaHoc) ? 1 : 0) +
+      (hasValue(scores.sinhHoc) ? 1 : 0);
 
-    const isSocial =
-      hasValue(scores.lichSu) &&
-      hasValue(scores.diaLi) &&
-      hasValue(scores.gdcd);
+    const socialCount =
+      (hasValue(scores.lichSu) ? 1 : 0) +
+      (hasValue(scores.diaLi) ? 1 : 0) +
+      (hasValue(scores.gdcd) ? 1 : 0);
 
-    // If both exist or neither exists -> Throw UnknownStudentGroupError
-    if (isNatural && isSocial) {
-      throw new UnknownStudentGroupError(scores.sbd);
-    }
-
-    if (isNatural) {
-      return StudentGroup.NATURAL;
-    }
-
-    if (isSocial) {
+    if (socialCount > naturalCount) {
       return StudentGroup.SOCIAL;
     }
 
-    throw new UnknownStudentGroupError(scores.sbd);
+    // Default to NATURAL if naturalCount >= socialCount (handles full or partial scores and mandatory-only subjects)
+    return StudentGroup.NATURAL;
   }
 }

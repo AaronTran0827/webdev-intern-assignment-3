@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { IStudentRepository } from '../../domain/repositories/IStudentRepository.js';
+import { IStudentRepository, StudentQueryOptions, PaginatedResult, SubjectReportDTO, Top10BlockItem } from '../../domain/repositories/IStudentRepository.js';
 import { Student } from '../../domain/entities/Student.js';
 import { NaturalStudent } from '../../domain/entities/NaturalStudent.js';
 import { SocialStudent } from '../../domain/entities/SocialStudent.js';
@@ -19,10 +19,49 @@ export class PrismaStudentRepository implements IStudentRepository {
     return StudentFactory.createFromRaw(raw);
   }
 
-  public async findAll(): Promise<Student[]> {
-    const rows = await this.prisma.student.findMany({
-      orderBy: { sbd: 'asc' },
-    });
+  public async findAll(options: StudentQueryOptions = {}): Promise<PaginatedResult<Student>> {
+    const page = Math.max(1, options.page || 1);
+    const limit = Math.min(100, Math.max(1, options.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (options.group === StudentGroup.NATURAL) {
+      where.vat_li = { not: null };
+      where.hoa_hoc = { not: null };
+      where.sinh_hoc = { not: null };
+    } else if (options.group === StudentGroup.SOCIAL) {
+      where.lich_su = { not: null };
+      where.dia_li = { not: null };
+      where.gdcd = { not: null };
+    }
+
+    const validSortFields: Record<string, string> = {
+      sbd: 'sbd',
+      toan: 'toan',
+      nguVan: 'ngu_van',
+      ngoaiNgu: 'ngoai_ngu',
+      vatLi: 'vat_li',
+      hoaHoc: 'hoa_hoc',
+      sinhHoc: 'sinh_hoc',
+      lichSu: 'lich_su',
+      diaLi: 'dia_li',
+      gdcd: 'gdcd',
+    };
+
+    const sortField = validSortFields[options.sortBy || 'sbd'] || 'sbd';
+    const sortOrder = options.sortOrder === 'desc' ? 'desc' : 'asc';
+    const orderBy = { [sortField]: sortOrder };
+
+    const [rows, totalItems] = await Promise.all([
+      this.prisma.student.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+      }),
+      this.prisma.student.count({ where }),
+    ]);
 
     const students: Student[] = [];
     for (const row of rows) {
@@ -32,7 +71,20 @@ export class PrismaStudentRepository implements IStudentRepository {
         // Skip unclassifiable rows if any
       }
     }
-    return students;
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: students,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
   }
 
   public async findByGroup(group: StudentGroup): Promise<Student[]> {
@@ -150,5 +202,80 @@ export class PrismaStudentRepository implements IStudentRepository {
     });
 
     return true;
+  }
+
+  public async getSubjectReport(subjectCode?: string): Promise<SubjectReportDTO[]> {
+    const subjectsMap: Record<string, string> = {
+      toan: 'Toán',
+      ngu_van: 'Ngữ văn',
+      ngoai_ngu: 'Ngoại ngữ',
+      vat_li: 'Vật lý',
+      hoa_hoc: 'Hóa học',
+      sinh_hoc: 'Sinh học',
+      lich_su: 'Lịch sử',
+      dia_li: 'Địa lý',
+      gdcd: 'GDCD',
+    };
+
+    const targetSubjects = subjectCode && subjectsMap[subjectCode]
+      ? [subjectCode]
+      : Object.keys(subjectsMap);
+
+    const reports: SubjectReportDTO[] = [];
+
+    for (const code of targetSubjects) {
+      const result: any = await this.prisma.$queryRawUnsafe(`
+        SELECT 
+          SUM(CASE WHEN ${code} >= 8.0 THEN 1 ELSE 0 END)::int as "excellentCount",
+          SUM(CASE WHEN ${code} >= 6.0 AND ${code} < 8.0 THEN 1 ELSE 0 END)::int as "goodCount",
+          SUM(CASE WHEN ${code} >= 4.0 AND ${code} < 6.0 THEN 1 ELSE 0 END)::int as "averageCount",
+          SUM(CASE WHEN ${code} < 4.0 THEN 1 ELSE 0 END)::int as "poorCount",
+          COUNT(${code})::int as "totalCount"
+        FROM students
+        WHERE ${code} IS NOT NULL;
+      `);
+
+      const row = result[0] || {};
+      reports.push({
+        subjectCode: code,
+        subjectName: subjectsMap[code],
+        excellentCount: Number(row.excellentCount || 0),
+        goodCount: Number(row.goodCount || 0),
+        averageCount: Number(row.averageCount || 0),
+        poorCount: Number(row.poorCount || 0),
+        totalCount: Number(row.totalCount || 0),
+      });
+    }
+
+    return reports;
+  }
+
+  public async findTop10ByBlock(blockCode: string = 'A00'): Promise<Top10BlockItem[]> {
+    const blocks: Record<string, { name: string; cols: string[] }> = {
+      A00: { name: 'A00 (Toán, Vật lí, Hóa học)', cols: ['toan', 'vat_li', 'hoa_hoc'] },
+      A01: { name: 'A01 (Toán, Vật lí, Tiếng Anh)', cols: ['toan', 'vat_li', 'ngoai_ngu'] },
+      B00: { name: 'B00 (Toán, Hóa học, Sinh học)', cols: ['toan', 'hoa_hoc', 'sinh_hoc'] },
+      C00: { name: 'C00 (Ngữ văn, Lịch sử, Địa lí)', cols: ['ngu_van', 'lich_su', 'dia_li'] },
+      D01: { name: 'D01 (Toán, Ngữ văn, Tiếng Anh)', cols: ['toan', 'ngu_van', 'ngoai_ngu'] },
+    };
+
+    const targetBlock = blocks[blockCode.toUpperCase()] || blocks.A00;
+    const [c1, c2, c3] = targetBlock.cols;
+
+    const query = `
+      SELECT *, (${c1} + ${c2} + ${c3}) as "totalScore"
+      FROM students
+      WHERE ${c1} IS NOT NULL AND ${c2} IS NOT NULL AND ${c3} IS NOT NULL
+      ORDER BY "totalScore" DESC
+      LIMIT 10;
+    `;
+
+    const rows: any[] = await this.prisma.$queryRawUnsafe(query);
+
+    return rows.map((row) => ({
+      student: StudentFactory.createFromRaw(row),
+      totalScore: Number(Number(row.totalScore).toFixed(2)),
+      block: targetBlock.name,
+    }));
   }
 }

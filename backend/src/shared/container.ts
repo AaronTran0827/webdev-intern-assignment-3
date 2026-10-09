@@ -7,6 +7,8 @@ import { GetStudentsByGroup } from '../modules/student/application/use-cases/Get
 import { CreateStudent } from '../modules/student/application/use-cases/CreateStudent.js';
 import { UpdateStudent } from '../modules/student/application/use-cases/UpdateStudent.js';
 import { DeleteStudent } from '../modules/student/application/use-cases/DeleteStudent.js';
+import { GetSubjectReport } from '../modules/student/application/use-cases/GetSubjectReport.js';
+import { GetTop10Students } from '../modules/student/application/use-cases/GetTop10Students.js';
 
 import { StudentController } from '../modules/student/presentation/controllers/StudentController.js';
 
@@ -26,6 +28,8 @@ export const createContainer = () => {
   const createStudentUseCase = new CreateStudent(studentRepository);
   const updateStudentUseCase = new UpdateStudent(studentRepository);
   const deleteStudentUseCase = new DeleteStudent(studentRepository);
+  const getSubjectReportUseCase = new GetSubjectReport(studentRepository);
+  const getTop10StudentsUseCase = new GetTop10Students(studentRepository);
 
   // 3. Presentation Layer (Controllers)
   const studentController = new StudentController(
@@ -34,7 +38,9 @@ export const createContainer = () => {
     getStudentsByGroupUseCase,
     createStudentUseCase,
     updateStudentUseCase,
-    deleteStudentUseCase
+    deleteStudentUseCase,
+    getSubjectReportUseCase,
+    getTop10StudentsUseCase
   );
 
   return {
