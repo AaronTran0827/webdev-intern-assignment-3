@@ -27,13 +27,17 @@ export class PrismaStudentRepository implements IStudentRepository {
     const where: any = {};
 
     if (options.group === StudentGroup.NATURAL) {
-      where.vat_li = { not: null };
-      where.hoa_hoc = { not: null };
-      where.sinh_hoc = { not: null };
+      where.OR = [
+        { vat_li: { gt: 0 } },
+        { hoa_hoc: { gt: 0 } },
+        { sinh_hoc: { gt: 0 } },
+      ];
     } else if (options.group === StudentGroup.SOCIAL) {
-      where.lich_su = { not: null };
-      where.dia_li = { not: null };
-      where.gdcd = { not: null };
+      where.OR = [
+        { lich_su: { gt: 0 } },
+        { dia_li: { gt: 0 } },
+        { gdcd: { gt: 0 } },
+      ];
     }
 
     const validSortFields: Record<string, string> = {
@@ -92,15 +96,19 @@ export class PrismaStudentRepository implements IStudentRepository {
 
     if (group === StudentGroup.NATURAL) {
       whereCondition = {
-        vat_li: { not: null },
-        hoa_hoc: { not: null },
-        sinh_hoc: { not: null },
+        OR: [
+          { vat_li: { gt: 0 } },
+          { hoa_hoc: { gt: 0 } },
+          { sinh_hoc: { gt: 0 } },
+        ],
       };
     } else if (group === StudentGroup.SOCIAL) {
       whereCondition = {
-        lich_su: { not: null },
-        dia_li: { not: null },
-        gdcd: { not: null },
+        OR: [
+          { lich_su: { gt: 0 } },
+          { dia_li: { gt: 0 } },
+          { gdcd: { gt: 0 } },
+        ],
       };
     }
 
@@ -205,49 +213,86 @@ export class PrismaStudentRepository implements IStudentRepository {
   }
 
   public async getSubjectReport(subjectCode?: string): Promise<SubjectReportDTO[]> {
-    const subjectsMap: Record<string, string> = {
-      toan: 'Toán',
-      ngu_van: 'Ngữ văn',
-      ngoai_ngu: 'Ngoại ngữ',
-      vat_li: 'Vật lý',
-      hoa_hoc: 'Hóa học',
-      sinh_hoc: 'Sinh học',
-      lich_su: 'Lịch sử',
-      dia_li: 'Địa lý',
-      gdcd: 'GDCD',
+    const subjectsMap: Record<string, { dbCol: string; name: string }> = {
+      toan: { dbCol: 'toan', name: 'Toán' },
+      nguVan: { dbCol: 'ngu_van', name: 'Ngữ văn' },
+      ngu_van: { dbCol: 'ngu_van', name: 'Ngữ văn' },
+      ngoaiNgu: { dbCol: 'ngoai_ngu', name: 'Ngoại ngữ' },
+      ngoai_ngu: { dbCol: 'ngoai_ngu', name: 'Ngoại ngữ' },
+      vatLi: { dbCol: 'vat_li', name: 'Vật lý' },
+      vat_li: { dbCol: 'vat_li', name: 'Vật lý' },
+      hoaHoc: { dbCol: 'hoa_hoc', name: 'Hóa học' },
+      hoa_hoc: { dbCol: 'hoa_hoc', name: 'Hóa học' },
+      sinhHoc: { dbCol: 'sinh_hoc', name: 'Sinh học' },
+      sinh_hoc: { dbCol: 'sinh_hoc', name: 'Sinh học' },
+      lichSu: { dbCol: 'lich_su', name: 'Lịch sử' },
+      lich_su: { dbCol: 'lich_su', name: 'Lịch sử' },
+      diaLi: { dbCol: 'dia_li', name: 'Địa lý' },
+      dia_li: { dbCol: 'dia_li', name: 'Địa lý' },
+      gdcd: { dbCol: 'gdcd', name: 'GDCD' },
     };
 
-    const targetSubjects = subjectCode && subjectsMap[subjectCode]
-      ? [subjectCode]
-      : Object.keys(subjectsMap);
+    const displaySubjects: { code: string; dbCol: string; name: string }[] = [
+      { code: 'toan', dbCol: 'toan', name: 'Toán' },
+      { code: 'nguVan', dbCol: 'ngu_van', name: 'Ngữ văn' },
+      { code: 'ngoaiNgu', dbCol: 'ngoai_ngu', name: 'Ngoại ngữ' },
+      { code: 'vatLi', dbCol: 'vat_li', name: 'Vật lý' },
+      { code: 'hoaHoc', dbCol: 'hoa_hoc', name: 'Hóa học' },
+      { code: 'sinhHoc', dbCol: 'sinh_hoc', name: 'Sinh học' },
+      { code: 'lichSu', dbCol: 'lich_su', name: 'Lịch sử' },
+      { code: 'diaLi', dbCol: 'dia_li', name: 'Địa lý' },
+      { code: 'gdcd', dbCol: 'gdcd', name: 'GDCD' },
+    ];
 
-    const reports: SubjectReportDTO[] = [];
-
-    for (const code of targetSubjects) {
+    if (subjectCode && subjectsMap[subjectCode]) {
+      const target = subjectsMap[subjectCode];
+      const col = target.dbCol;
       const result: any = await this.prisma.$queryRawUnsafe(`
         SELECT 
-          SUM(CASE WHEN ${code} >= 8.0 THEN 1 ELSE 0 END)::int as "excellentCount",
-          SUM(CASE WHEN ${code} >= 6.0 AND ${code} < 8.0 THEN 1 ELSE 0 END)::int as "goodCount",
-          SUM(CASE WHEN ${code} >= 4.0 AND ${code} < 6.0 THEN 1 ELSE 0 END)::int as "averageCount",
-          SUM(CASE WHEN ${code} < 4.0 THEN 1 ELSE 0 END)::int as "poorCount",
-          COUNT(${code})::int as "totalCount"
-        FROM students
-        WHERE ${code} IS NOT NULL;
+          SUM(CASE WHEN ${col} >= 8.0 THEN 1 ELSE 0 END)::int as "excellentCount",
+          SUM(CASE WHEN ${col} >= 6.0 AND ${col} < 8.0 THEN 1 ELSE 0 END)::int as "goodCount",
+          SUM(CASE WHEN ${col} >= 4.0 AND ${col} < 6.0 THEN 1 ELSE 0 END)::int as "averageCount",
+          SUM(CASE WHEN ${col} < 4.0 AND ${col} > 0 THEN 1 ELSE 0 END)::int as "poorCount",
+          SUM(CASE WHEN ${col} > 0 THEN 1 ELSE 0 END)::int as "totalCount"
+        FROM students;
       `);
 
       const row = result[0] || {};
-      reports.push({
-        subjectCode: code,
-        subjectName: subjectsMap[code],
+      return [{
+        subjectCode,
+        subjectName: target.name,
         excellentCount: Number(row.excellentCount || 0),
         goodCount: Number(row.goodCount || 0),
         averageCount: Number(row.averageCount || 0),
         poorCount: Number(row.poorCount || 0),
         totalCount: Number(row.totalCount || 0),
-      });
+      }];
     }
 
-    return reports;
+    const selectClauses = displaySubjects.map((s) => `
+      SUM(CASE WHEN ${s.dbCol} >= 8.0 THEN 1 ELSE 0 END)::int as "${s.code}_exc",
+      SUM(CASE WHEN ${s.dbCol} >= 6.0 AND ${s.dbCol} < 8.0 THEN 1 ELSE 0 END)::int as "${s.code}_good",
+      SUM(CASE WHEN ${s.dbCol} >= 4.0 AND ${s.dbCol} < 6.0 THEN 1 ELSE 0 END)::int as "${s.code}_avg",
+      SUM(CASE WHEN ${s.dbCol} < 4.0 AND ${s.dbCol} > 0 THEN 1 ELSE 0 END)::int as "${s.code}_poor",
+      SUM(CASE WHEN ${s.dbCol} > 0 THEN 1 ELSE 0 END)::int as "${s.code}_total"
+    `).join(',\n');
+
+    const result: any = await this.prisma.$queryRawUnsafe(`
+      SELECT 
+        ${selectClauses}
+      FROM students;
+    `);
+
+    const row = result[0] || {};
+    return displaySubjects.map((s) => ({
+      subjectCode: s.code,
+      subjectName: s.name,
+      excellentCount: Number(row[`${s.code}_exc`] || 0),
+      goodCount: Number(row[`${s.code}_good`] || 0),
+      averageCount: Number(row[`${s.code}_avg`] || 0),
+      poorCount: Number(row[`${s.code}_poor`] || 0),
+      totalCount: Number(row[`${s.code}_total`] || 0),
+    }));
   }
 
   public async findTop10ByBlock(blockCode: string = 'A00'): Promise<Top10BlockItem[]> {

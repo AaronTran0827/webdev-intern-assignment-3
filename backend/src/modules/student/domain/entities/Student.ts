@@ -38,11 +38,12 @@ export abstract class Student {
   public abstract toDTO(): Record<string, any>;
 
   /**
-   * Protected helper to calculate exact rounded average of scores
+   * Protected helper to calculate exact rounded average of taken scores
    */
   protected calculateAverage(scores: Score[]): number {
-    if (scores.length === 0) return 0.0;
-    const sum = scores.reduce((acc, curr) => acc + curr.getValue(), 0);
-    return Math.round((sum / scores.length) * 100) / 100;
+    const validScores = scores.filter((s) => !s.isNull() && s.getValue() > 0);
+    if (validScores.length === 0) return 0.0;
+    const sum = validScores.reduce((acc, curr) => acc + curr.getValue(), 0);
+    return Math.round((sum / validScores.length) * 100) / 100;
   }
 }

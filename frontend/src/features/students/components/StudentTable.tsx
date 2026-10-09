@@ -108,19 +108,22 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                         {isNatural ? (
                           <>
                             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                              A: <b>{student.combinations.groupA ?? 0}</b>
+                              A00: <b>{student.combinations.groupA ?? 0}</b>
+                            </span>
+                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              A01: <b>{student.combinations.groupA1 ?? 0}</b>
                             </span>
                             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                              B: <b>{student.combinations.groupB ?? 0}</b>
+                              B00: <b>{student.combinations.groupB ?? 0}</b>
                             </span>
                           </>
                         ) : (
                           <>
                             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                              C: <b>{student.combinations.groupC ?? 0}</b>
+                              C00: <b>{student.combinations.groupC ?? 0}</b>
                             </span>
                             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                              D: <b>{student.combinations.groupD ?? 0}</b>
+                              D01: <b>{student.combinations.groupD ?? 0}</b>
                             </span>
                           </>
                         )}
