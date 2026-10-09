@@ -1,0 +1,15 @@
+# npx skills add supabase/server
+.agents/
+data/
+
+# node_modules
+node_modules/
+
+# .env
+.env
+
+# dist
+dist/
+
+# tests
+tests/
