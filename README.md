@@ -126,20 +126,18 @@ npm test
 
 ---
 
-## 📑 Danh Sách API Endpoints Chính
+## 📑 Danh Sách API Endpoints Chi Tiết
 
-| Method | Endpoint | Mô Tả | Tham Số (Query / Body) |
-|---|---|---|---|
-| `GET` | `/health` | Kiểm tra trạng thái máy chủ | N/A |
-| `GET` | `/api/students` | Lấy danh sách thí sinh phân trang | `page`, `limit`, `group`, `sortBy`, `sortOrder` |
-| `GET` | `/api/students/:sbd` | Tra cứu chi tiết thí sinh theo SBD | `sbd` (URL parameter) |
-| `GET` | `/api/students/group/natural` | Lấy danh sách thí sinh Khối Tự Nhiên | N/A |
-| `GET` | `/api/students/group/social` | Lấy danh sách thí sinh Khối Xã Hội | N/A |
-| `POST` | `/api/students` | Thêm mới 01 thí sinh | JSON Body (SBD, điểm các môn) |
-| `PUT` | `/api/students/:sbd` | Cập nhật thông tin điểm thí sinh | JSON Body |
-| `DELETE` | `/api/students/:sbd` | Xóa thí sinh khỏi hệ thống | `sbd` (URL parameter) |
-| `GET` | `/api/reports/subjects` | Báo cáo phổ điểm 4 mức (Giỏi, Khá, TB, Yếu) | `subject` (mã môn tùy chọn) |
-| `GET` | `/api/reports/top10` | Danh sách Top 10 thí sinh cao điểm nhất | `block` (`A00`, `A01`, `B00`, `C00`, `D01`) |
+| STT | Method | Endpoint | Mô Tả Chức Năng | Tham Số (Query / Body / Params) |
+|---|---|---|---|---|
+| 1 | `GET` | `/health` | Kiểm tra trạng thái hoạt động máy chủ (Health Check) | *Không có* |
+| 2 | `GET` | `/api/students` | Lấy danh sách tất cả thí sinh (Phân trang & Sắp xếp) | `page` (default 1), `limit` (default 10, max 100), `group` (`NATURAL` \| `SOCIAL`), `sortBy` (default `sbd`), `sortOrder` (`asc` \| `desc`) |
+| 3 | `GET` | `/api/students/:sbd` | Tra cứu thông tin chi tiết điểm thi của 01 thí sinh | URL Param: `sbd` (Chuỗi 6-10 chữ số) |
+| 4 | `POST` | `/api/students` | Thêm mới 01 thí sinh vào hệ thống (tự động phân loại khối thi) | **JSON Body**: `{ "sbd": "01000001", "toan": 8.0, "nguVan": 7.5, "ngoaiNgu": 9.0, "vatLi": 8.5, "hoaHoc": 7.0, "sinhHoc": 6.5, "maNgoaiNgu": "N1" }` |
+| 5 | `PUT` | `/api/students/:sbd` | Cập nhật thông tin điểm số của 01 thí sinh | URL Param: `sbd`<br/>**JSON Body**: `{ "toan": 9.0, "nguVan": 8.0, ... }` |
+| 6 | `DELETE` | `/api/students/:sbd` | Xóa 01 thí sinh khỏi hệ thống | URL Param: `sbd` |
+| 7 | `GET` | `/api/reports` | Báo cáo phổ điểm 4 mức (Giỏi `>=8`, Khá `6-8`, TB `4-6`, Yếu `<4`) | Query Param tùy chọn: `subject` (`toan`, `nguVan`, `ngoaiNgu`, `vatLi`, `hoaHoc`, `sinhHoc`, `lichSu`, `diaLi`, `gdcd`) |
+| 8 | `GET` | `/api/students/top-10` | Danh sách Top 10 thủ khoa có tổng điểm cao nhất theo khối thi | Query Param tùy chọn: `block` (`A00`, `A01`, `B00`, `C00`, `D01` - Mặc định `A00`) *(Hoặc Alias: `/api/students/top-group-a`)* |
 
 ---
 
