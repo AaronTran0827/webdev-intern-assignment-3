@@ -110,7 +110,7 @@ cd webdev-intern-assignment-3
    ```bash
    npm run dev
    ```
-   - Ứng dụng Web Frontend sẽ sẵn sàng tại: **`http://localhost:5173`**
+   - Ứng dụng Web Frontend sẽ sẵn sàng tại: **`http://localhost:3000`**
 
 ---
 
