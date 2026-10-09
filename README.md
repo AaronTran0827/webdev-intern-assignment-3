@@ -80,7 +80,7 @@ cd webdev-intern-assignment-3
    npm run prisma:push
    ```
 
-4. **Nạp dữ liệu ban đầu (Database Seeding - Không khuyến khích khi vẫn sử dụng db của em sử dụng vì dữ liệu đã được em import sẵn)**:
+4. **Nạp dữ liệu ban đầu (Database Seeding - Không khuyến khích khi vẫn sử dụng db của em vì dữ liệu đã được em import sẵn)**:
    Nếu cần nạp dữ liệu hơn 1 triệu thí sinh từ file CSV vào Database:
    ```bash
    npm run prisma:seed
