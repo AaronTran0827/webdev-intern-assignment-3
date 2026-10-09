@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ==========================================================
+     GLOBAL THEME COLORS 
+     ========================================================== */
+  --color-primary: #0b1f42;            /* Clean Classic Royal Navy Blue */
+  --color-primary-hover: #163e80;      /* Primary Hover State */
+  --color-primary-light: #f0f4fa;      /* Light Blue Accent */
+  --color-primary-border: #cbd5e1;     /* Light Blue Border */
+
+  --color-header-bg: #0b1f42;          /* Top Header Banner Background */
+  --color-header-text: #ffffff;        /* Top Header Text */
+
+  --color-sidebar-bg: #ffffff;         /* Clean White Sidebar Background */
+  --color-sidebar-border: #e2e8f0;    /* Sidebar Right Border */
+  --color-sidebar-item-hover: #f1f5f9;
+  --color-sidebar-active-bg: #0b1f42;  /* Active Item Background */
+  --color-sidebar-active-text: #ffffff;/* Active Item Text */
+
+  --color-app-bg: #f8fafc;             /* App Main Slate Background */
+  --color-card-bg: #ffffff;            /* Card Container Background */
+  --color-card-border: #e2e8f0;        /* Card Border */
+  
+  --color-text-main: #1e293b;          /* Main Text (Dark Slate) */
+  --color-text-muted: #64748b;         /* Muted Subtitle Text */
+}
+
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
