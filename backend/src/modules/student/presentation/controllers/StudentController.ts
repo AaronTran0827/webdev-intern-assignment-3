@@ -100,7 +100,7 @@ export class StudentController {
       const data = await this.createStudentUseCase.execute(parsed.data);
       res.status(201).json({
         success: true,
-        message: 'Student record created successfully.',
+        message: 'Thêm mới thí sinh thành công.',
         data,
       });
     } catch (error) {
@@ -123,7 +123,7 @@ export class StudentController {
       const data = await this.updateStudentUseCase.execute(paramParsed.data.sbd, bodyParsed.data);
       res.status(200).json({
         success: true,
-        message: 'Student record updated successfully.',
+        message: 'Cập nhật thông tin thí sinh thành công.',
         data,
       });
     } catch (error) {
@@ -141,7 +141,7 @@ export class StudentController {
       await this.deleteStudentUseCase.execute(parsed.data.sbd);
       res.status(200).json({
         success: true,
-        message: `Student with SBD ${parsed.data.sbd} deleted successfully.`,
+        message: `Xóa thí sinh với SBD ${parsed.data.sbd} thành công.`,
       });
     } catch (error) {
       next(error);

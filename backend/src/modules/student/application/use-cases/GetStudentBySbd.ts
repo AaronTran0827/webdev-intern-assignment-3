@@ -7,7 +7,7 @@ export class GetStudentBySbd {
   public async execute(sbd: string) {
     const student = await this.studentRepository.findBySbd(sbd);
     if (!student) {
-      throw new NotFoundError(`Student with registration number (SBD) ${sbd} not found.`);
+      throw new NotFoundError(`Không tìm thấy thí sinh với Số báo danh (SBD): ${sbd}`);
     }
     return student.toDTO();
   }

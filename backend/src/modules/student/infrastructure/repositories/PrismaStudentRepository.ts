@@ -20,9 +20,8 @@ export class PrismaStudentRepository implements IStudentRepository {
   }
 
   public async findAll(options: StudentQueryOptions = {}): Promise<PaginatedResult<Student>> {
-    const page = Math.max(1, options.page || 1);
-    const limit = Math.min(100, Math.max(1, options.limit || 10));
-    const skip = (page - 1) * limit;
+    let limit = Math.min(100, Math.max(1, Math.floor(Number(options.limit) || 10)));
+    if (isNaN(limit) || !Number.isFinite(limit)) limit = 10;
 
     const where: any = {};
 
@@ -39,6 +38,18 @@ export class PrismaStudentRepository implements IStudentRepository {
         { gdcd: { gt: 0 } },
       ];
     }
+
+    const totalItems = await this.prisma.student.count({ where });
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+    let page = Math.floor(Number(options.page) || 1);
+    if (isNaN(page) || !Number.isFinite(page) || page < 1) {
+      page = 1;
+    } else if (totalPages > 0 && page > totalPages) {
+      page = totalPages;
+    }
+
+    const skip = (page - 1) * limit;
 
     const validSortFields: Record<string, string> = {
       sbd: 'sbd',
@@ -57,15 +68,12 @@ export class PrismaStudentRepository implements IStudentRepository {
     const sortOrder = options.sortOrder === 'desc' ? 'desc' : 'asc';
     const orderBy = { [sortField]: sortOrder };
 
-    const [rows, totalItems] = await Promise.all([
-      this.prisma.student.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-      }),
-      this.prisma.student.count({ where }),
-    ]);
+    const rows = await this.prisma.student.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy,
+    });
 
     const students: Student[] = [];
     for (const row of rows) {
@@ -75,8 +83,6 @@ export class PrismaStudentRepository implements IStudentRepository {
         // Skip unclassifiable rows if any
       }
     }
-
-    const totalPages = Math.ceil(totalItems / limit);
 
     return {
       data: students,
@@ -168,7 +174,7 @@ export class PrismaStudentRepository implements IStudentRepository {
     });
 
     if (!existing) {
-      throw new NotFoundError(`Student with SBD ${student.sbd} not found.`);
+      throw new NotFoundError(`Không tìm thấy thí sinh với Số báo danh (SBD): ${student.sbd}`);
     }
 
     const data: any = {
@@ -202,7 +208,7 @@ export class PrismaStudentRepository implements IStudentRepository {
     });
 
     if (!existing) {
-      throw new NotFoundError(`Student with SBD ${sbd} not found.`);
+      throw new NotFoundError(`Không tìm thấy thí sinh với Số báo danh (SBD): ${sbd}`);
     }
 
     await this.prisma.student.delete({

@@ -24,6 +24,30 @@ export const StudentTable: React.FC<StudentTableProps> = ({
   onPageChange,
   onLimitChange,
 }) => {
+  const [pageInput, setPageInput] = React.useState<string>(
+    pagination?.page ? String(pagination.page) : '1'
+  );
+
+  React.useEffect(() => {
+    if (pagination?.page) {
+      setPageInput(String(pagination.page));
+    }
+  }, [pagination?.page]);
+
+  const handlePageInputSubmit = () => {
+    const pageNum = parseInt(pageInput, 10);
+    if (!isNaN(pageNum) && pagination) {
+      const targetPage = Math.max(1, Math.min(pageNum, pagination.totalPages));
+      if (targetPage !== pagination.page) {
+        onPageChange(targetPage);
+      } else {
+        setPageInput(String(targetPage));
+      }
+    } else if (pagination) {
+      setPageInput(String(pagination.page));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden p-6 space-y-4 shadow-sm">
@@ -122,7 +146,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                             <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                               C00: <b>{student.combinations.groupC ?? 0}</b>
                             </span>
-                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
                               D01: <b>{student.combinations.groupD ?? 0}</b>
                             </span>
                           </>
@@ -182,23 +206,46 @@ export const StudentTable: React.FC<StudentTableProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-slate-600 mr-2">
-              Trang <b className="text-slate-900">{pagination.page}</b> / {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => onPageChange(pagination.page - 1)}
-              disabled={!pagination.hasPrevPage}
-              className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onPageChange(pagination.page + 1)}
-              disabled={!pagination.hasNextPage}
-              className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            <div className="flex items-center space-x-1 text-xs text-slate-600 mr-1">
+              <span>Trang</span>
+              <input
+                type="number"
+                min={1}
+                max={pagination.totalPages}
+                value={pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handlePageInputSubmit();
+                  }
+                }}
+                onBlur={handlePageInputSubmit}
+                className="w-20 px-2 py-1 text-center font-mono font-bold text-slate-900 bg-white border border-slate-300 rounded focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] shadow-2xs"
+                title="Nhập số trang và ấn Enter để chuyển trang"
+              />
+              <span className="text-slate-500 font-medium">
+                / <b className="text-slate-900 font-mono">{pagination.totalPages.toLocaleString()}</b>
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => onPageChange(pagination.page - 1)}
+                disabled={!pagination.hasPrevPage}
+                title="Trang trước"
+                className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onPageChange(pagination.page + 1)}
+                disabled={!pagination.hasNextPage}
+                title="Trang sau"
+                className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}

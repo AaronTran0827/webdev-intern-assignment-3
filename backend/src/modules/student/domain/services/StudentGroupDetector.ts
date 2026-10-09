@@ -1,5 +1,6 @@
 import { StudentGroup } from '../enums/StudentGroup.js';
 import { Score } from '../value-objects/Score.js';
+import { UnknownStudentGroupError } from '../../../../shared/errors/AppError.js';
 
 export interface RawScoresInput {
   sbd: string;
@@ -36,31 +37,24 @@ export class StudentGroupDetector {
     const diaLi = extractNum(scores.diaLi);
     const gdcd = extractNum(scores.gdcd);
 
-    const naturalSum = vatLi + hoaHoc + sinhHoc;
-    const socialSum = lichSu + diaLi + gdcd;
-
-    // 1. Compare total subject sums
-    if (socialSum > naturalSum) {
-      return StudentGroup.SOCIAL;
-    }
-
-    if (naturalSum > socialSum) {
-      return StudentGroup.NATURAL;
-    }
-
-    // 2. Compare positive score count (> 0)
     const naturalPositives = (vatLi > 0 ? 1 : 0) + (hoaHoc > 0 ? 1 : 0) + (sinhHoc > 0 ? 1 : 0);
     const socialPositives = (lichSu > 0 ? 1 : 0) + (diaLi > 0 ? 1 : 0) + (gdcd > 0 ? 1 : 0);
 
-    if (socialPositives > naturalPositives) {
-      return StudentGroup.SOCIAL;
+    // If candidate has positive scores (> 0) in BOTH Natural and Social groups,
+    // it is an invalid mixed combination ("nửa Tự nhiên nửa Xã hội"). Reject creation!
+    if (naturalPositives > 0 && socialPositives > 0) {
+      throw new UnknownStudentGroupError(scores.sbd);
     }
 
-    if (naturalPositives > socialPositives) {
+    if (naturalPositives > 0 && socialPositives === 0) {
       return StudentGroup.NATURAL;
     }
 
-    // 3. Fallback: check non-null presence if input uses nulls for non-taken subjects
+    if (socialPositives > 0 && naturalPositives === 0) {
+      return StudentGroup.SOCIAL;
+    }
+
+    // Fallback if no positive scores (>0) in either group: check explicit non-null values
     const naturalNonNullCount =
       (isExplicitlyNotNull(scores.vatLi) ? 1 : 0) +
       (isExplicitlyNotNull(scores.hoaHoc) ? 1 : 0) +
@@ -71,11 +65,15 @@ export class StudentGroupDetector {
       (isExplicitlyNotNull(scores.diaLi) ? 1 : 0) +
       (isExplicitlyNotNull(scores.gdcd) ? 1 : 0);
 
-    if (socialNonNullCount > naturalNonNullCount) {
+    if (naturalNonNullCount > 0 && socialNonNullCount === 0) {
+      return StudentGroup.NATURAL;
+    }
+
+    if (socialNonNullCount > 0 && naturalNonNullCount === 0) {
       return StudentGroup.SOCIAL;
     }
 
-    // Default to NATURAL
-    return StudentGroup.NATURAL;
+    // Ambiguous or no valid group detected
+    throw new UnknownStudentGroupError(scores.sbd);
   }
 }

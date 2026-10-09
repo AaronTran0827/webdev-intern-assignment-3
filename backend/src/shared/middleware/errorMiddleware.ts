@@ -30,7 +30,7 @@ export const errorMiddleware = (
     success: false,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: isProd ? 'Internal Server Error' : err.message || 'An unexpected error occurred.',
+      message: isProd ? 'Lỗi máy chủ nội bộ.' : err.message || 'Đã xảy ra lỗi không xác định trên hệ thống.',
     },
   });
 };

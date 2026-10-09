@@ -6,27 +6,47 @@ const scoreSchema = z
   .transform((val) => (val === null || val === undefined ? 0.0 : val))
   .pipe(
     z
-      .number({ invalid_type_error: 'Score must be a number' })
-      .min(0.0, { message: 'Score cannot be less than 0.0' })
-      .max(10.0, { message: 'Score cannot be greater than 10.0' })
+      .number({ invalid_type_error: 'Điểm số phải là một chữ số' })
+      .min(0.0, { message: 'Điểm số không được nhỏ hơn 0.0' })
+      .max(10.0, { message: 'Điểm số không được lớn hơn 10.0' })
   );
 
 const maNgoaiNguSchema = z
   .string()
-  .regex(/^N[1-7]$/, { message: 'Foreign language code must be between N1 and N7 (e.g., N1)' })
+  .regex(/^N[1-7]$/, { message: 'Mã ngoại ngữ phải có dạng từ N1 đến N7 (ví dụ: N1)' })
   .nullable()
   .optional();
 
 export const SbdParamSchema = z.object({
   sbd: z
-    .string({ required_error: 'SBD is required' })
+    .string({ required_error: 'Số báo danh (SBD) là bắt buộc' })
     .trim()
-    .regex(/^\d{6,10}$/, { message: 'SBD must be between 6 and 10 numeric digits' }),
+    .regex(/^\d{6,10}$/, { message: 'Số báo danh (SBD) phải bao gồm từ 6 đến 10 chữ số' }),
 });
 
 export const StudentQuerySchema = z.object({
-  page: z.coerce.number().int().positive().optional().default(1),
-  limit: z.coerce.number().int().positive().max(100).optional().default(10),
+  page: z
+    .any()
+    .transform((val) => {
+      if (val === undefined || val === null || val === '') return 1;
+      const num = Number(val);
+      if (isNaN(num) || !Number.isFinite(num) || num < 1 || num > Number.MAX_SAFE_INTEGER) {
+        return 1;
+      }
+      return Math.floor(num);
+    })
+    .default(1),
+  limit: z
+    .any()
+    .transform((val) => {
+      if (val === undefined || val === null || val === '') return 10;
+      const num = Number(val);
+      if (isNaN(num) || !Number.isFinite(num) || num < 1) {
+        return 10;
+      }
+      return Math.min(100, Math.floor(num));
+    })
+    .default(10),
   group: z.nativeEnum(StudentGroup).optional(),
   sortBy: z.string().trim().optional().default('sbd'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
@@ -34,9 +54,9 @@ export const StudentQuerySchema = z.object({
 
 export const CreateStudentSchema = z.object({
   sbd: z
-    .string({ required_error: 'SBD is required' })
+    .string({ required_error: 'Số báo danh (SBD) là bắt buộc' })
     .trim()
-    .regex(/^\d{6,10}$/, { message: 'SBD must be between 6 and 10 numeric digits' }),
+    .regex(/^\d{6,10}$/, { message: 'Số báo danh (SBD) phải bao gồm từ 6 đến 10 chữ số' }),
   toan: scoreSchema,
   nguVan: scoreSchema,
   ngoaiNgu: scoreSchema,

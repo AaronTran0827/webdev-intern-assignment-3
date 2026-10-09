@@ -26,7 +26,7 @@ export class DomainError extends AppError {
 export class InvalidScoreError extends DomainError {
   public override readonly errorCode = 'INVALID_SCORE';
   constructor(score: number) {
-    super(`Score value must be between 0.0 and 10.0 or null. Received: ${score}`);
+    super(`Điểm số phải nằm trong khoảng từ 0.0 đến 10.0 hoặc để trống. Giá trị nhận được: ${score}`);
   }
 }
 
@@ -36,7 +36,7 @@ export class InvalidScoreError extends DomainError {
 export class UnknownStudentGroupError extends DomainError {
   public override readonly errorCode = 'UNKNOWN_STUDENT_GROUP';
   constructor(sbd: string) {
-    super(`Cannot detect student group (NATURAL or SOCIAL) for registration number: ${sbd}`);
+    super(`Không thể xác định khối thi (Tự nhiên hoặc Xã hội) cho Số báo danh: ${sbd}`);
   }
 }
 
@@ -69,6 +69,6 @@ export class DuplicateStudentError extends AppError {
   public readonly statusCode = 409;
   public readonly errorCode = 'DUPLICATE_STUDENT';
   constructor(sbd: string) {
-    super(`Student with registration number (SBD) ${sbd} already exists.`);
+    super(`Thí sinh với Số báo danh (SBD) ${sbd} đã tồn tại trong hệ thống.`);
   }
 }

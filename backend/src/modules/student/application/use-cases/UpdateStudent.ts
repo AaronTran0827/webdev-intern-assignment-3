@@ -9,7 +9,7 @@ export class UpdateStudent {
   public async execute(sbd: string, dto: UpdateStudentDTO) {
     const existing = await this.studentRepository.findBySbd(sbd);
     if (!existing) {
-      throw new NotFoundError(`Student with registration number (SBD) ${sbd} not found.`);
+      throw new NotFoundError(`Không tìm thấy thí sinh với Số báo danh (SBD): ${sbd}`);
     }
 
     const currentDto = existing.toDTO();
